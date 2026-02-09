@@ -89,8 +89,9 @@ class Calculator {
 
     getDisplayNumber(number) {
         const stringNumber = number.toString();
-        const integerDigits = parseFloat(stringNumber.split('.')[0]);
-        const decimalDigits = stringNumber.split('.')[1];
+        const splitNumber = stringNumber.split('.');
+        const integerDigits = parseFloat(splitNumber[0]);
+        const decimalDigits = splitNumber[1];
         let integerDisplay;
         if (isNaN(integerDigits)) {
             integerDisplay = '0';
@@ -98,16 +99,32 @@ class Calculator {
             integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
         }
         if (decimalDigits != null) {
-            return `${integerDisplay}.${decimalDigits}`;
+            // Limit decimal digits to 10 places to prevent overflow
+            const truncatedDecimal = decimalDigits.substring(0, 10);
+            return `${integerDisplay}.${truncatedDecimal}`;
         } else {
             return integerDisplay;
         }
     }
 
     updateDisplay() {
-        this.currentOperandTextElement.innerText = this.getDisplayNumber(this.currentOperand);
+        const displayValue = this.getDisplayNumber(this.currentOperand);
+        this.currentOperandTextElement.innerText = displayValue;
+
+        // Dynamic font scaling
+        if (displayValue.length > 12) {
+            this.currentOperandTextElement.classList.remove('text-4xl', 'sm:text-5xl');
+            this.currentOperandTextElement.classList.add('text-2xl');
+        } else if (displayValue.length > 8) {
+            this.currentOperandTextElement.classList.remove('text-4xl', 'sm:text-5xl');
+            this.currentOperandTextElement.classList.add('text-3xl');
+        } else {
+            this.currentOperandTextElement.classList.remove('text-2xl', 'text-3xl');
+            this.currentOperandTextElement.classList.add('text-4xl', 'sm:text-5xl');
+        }
+
         if (this.operation != null) {
-            this.previousOperandTextElement.innerText = 
+            this.previousOperandTextElement.innerText =
                 `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`;
         } else {
             this.previousOperandTextElement.innerText = '';
